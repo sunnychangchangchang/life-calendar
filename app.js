@@ -40,6 +40,10 @@ const translations = {
     rangeDecade: "十年",
     rangeYear: "今年",
     rangeLife: "全人生",
+    mobileSettings: "設定",
+    mobileDone: "完成",
+    mobileWeekDetails: "週記錄",
+    mobileClosePanel: "關閉面板",
     overview: "人生總覽",
     resetZoom: "重置",
     selectedLabel: "週",
@@ -117,6 +121,10 @@ const translations = {
     rangeDecade: "Decade",
     rangeYear: "Year",
     rangeLife: "Life",
+    mobileSettings: "Settings",
+    mobileDone: "Done",
+    mobileWeekDetails: "Week records",
+    mobileClosePanel: "Close panel",
     overview: "Life overview",
     resetZoom: "Reset",
     selectedLabel: "Week",
@@ -163,6 +171,7 @@ const maxLifespan = 100;
 const defaultLifespan = 100;
 const zoomButtonFactor = 1.22;
 const wheelZoomSensitivity = 0.0105;
+const mobileMedia = window.matchMedia("(max-width: 900px)");
 
 const state = {
   lang: "zh",
@@ -198,7 +207,9 @@ const state = {
   wheelPanX: 0,
   wheelPanY: 0,
   wheelPanRaf: null,
-  saveButtonTimer: null
+  saveButtonTimer: null,
+  mobilePanel: null,
+  mobileTrigger: null
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -266,7 +277,14 @@ const els = {
   saveNote: $("#saveNote"),
   rangeDecade: $("#rangeDecade"),
   rangeYear: $("#rangeYear"),
-  rangeLife: $("#rangeLife")
+  rangeLife: $("#rangeLife"),
+  settingsPanel: $("#settingsPanel"),
+  inspector: $("#journal"),
+  mobileBackdrop: $("#mobileBackdrop"),
+  mobileSettingsOpen: $("#mobileSettingsOpen"),
+  mobileSettingsClose: $("#mobileSettingsClose"),
+  mobileInspectorClose: $("#mobileInspectorClose"),
+  mobileRangeButtons: $$("[data-mobile-range]")
 };
 
 loadSavedState();
@@ -328,6 +346,7 @@ function bindEvents() {
   });
 
   els.accountButton.addEventListener("click", () => {
+    closeMobilePanels({ restoreFocus: false });
     if (state.cloud.enabled && state.cloud.session) {
       signOutOfSupabase();
       return;
@@ -340,11 +359,22 @@ function bindEvents() {
     saveState({ cloud: false });
   });
 
-  els.printButton.addEventListener("click", () => printFullLife());
+  els.printButton.addEventListener("click", () => {
+    closeMobilePanels({ restoreFocus: false });
+    printFullLife();
+  });
 
   els.rangeDecade.addEventListener("click", () => setRange("decade"));
   els.rangeYear.addEventListener("click", () => setRange("year"));
   els.rangeLife.addEventListener("click", () => setRange("life"));
+  els.mobileRangeButtons.forEach((button) => {
+    button.addEventListener("click", () => setRange(button.dataset.mobileRange));
+  });
+
+  els.mobileSettingsOpen.addEventListener("click", () => openMobilePanel("settings"));
+  els.mobileSettingsClose.addEventListener("click", () => closeMobilePanels());
+  els.mobileInspectorClose.addEventListener("click", () => closeMobilePanels());
+  els.mobileBackdrop.addEventListener("click", () => closeMobilePanels());
 
   $("#zoomIn").addEventListener("click", () => {
     const rect = els.calendarStage.getBoundingClientRect();
@@ -441,8 +471,57 @@ function bindEvents() {
   });
 
   window.addEventListener("resize", () => fitMap(true));
+  mobileMedia.addEventListener("change", syncMobileMode);
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && state.mobilePanel) closeMobilePanels();
+  });
   window.addEventListener("beforeprint", preparePrint);
   window.addEventListener("afterprint", restoreAfterPrint);
+  syncMobileMode();
+}
+
+function openMobilePanel(panel, options = {}) {
+  if (!mobileMedia.matches) return;
+  const isSettings = panel === "settings";
+  state.mobilePanel = panel;
+  state.mobileTrigger = isSettings ? els.mobileSettingsOpen : document.activeElement;
+  document.body.classList.toggle("mobile-settings-open", isSettings);
+  document.body.classList.toggle("mobile-inspector-open", !isSettings);
+  document.body.classList.add("mobile-panel-open");
+  els.mobileBackdrop.hidden = false;
+  els.mobileSettingsOpen.setAttribute("aria-expanded", String(isSettings));
+  els.settingsPanel.setAttribute("aria-hidden", String(!isSettings));
+  els.inspector.setAttribute("aria-hidden", String(isSettings));
+
+  if (options.focus === false) return;
+  window.requestAnimationFrame(() => {
+    (isSettings ? els.mobileSettingsClose : els.mobileInspectorClose).focus();
+  });
+}
+
+function closeMobilePanels(options = {}) {
+  const trigger = state.mobileTrigger;
+  state.mobilePanel = null;
+  state.mobileTrigger = null;
+  document.body.classList.remove("mobile-settings-open", "mobile-inspector-open", "mobile-panel-open");
+  els.mobileBackdrop.hidden = true;
+  els.mobileSettingsOpen.setAttribute("aria-expanded", "false");
+
+  if (mobileMedia.matches) {
+    els.settingsPanel.setAttribute("aria-hidden", "true");
+    els.inspector.setAttribute("aria-hidden", "true");
+  } else {
+    els.settingsPanel.removeAttribute("aria-hidden");
+    els.inspector.removeAttribute("aria-hidden");
+  }
+
+  if (options.restoreFocus === false || !trigger?.isConnected) return;
+  trigger.focus({ preventScroll: true });
+}
+
+function syncMobileMode() {
+  closeMobilePanels({ restoreFocus: false });
+  window.requestAnimationFrame(() => fitMap(true));
 }
 
 async function initCloud() {
@@ -934,12 +1013,16 @@ function updateText() {
   });
   els.languageToggle.textContent = state.lang === "zh" ? "EN" : "中文";
   els.noteInput.placeholder = t("notePlaceholder");
+  els.mobileBackdrop.setAttribute("aria-label", t("mobileClosePanel"));
 }
 
 function updateNavState() {
   els.rangeDecade.setAttribute("aria-pressed", String(state.range === "decade"));
   els.rangeYear.setAttribute("aria-pressed", String(state.range === "year"));
   els.rangeLife.setAttribute("aria-pressed", String(state.range === "life"));
+  els.mobileRangeButtons.forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.mobileRange === state.range));
+  });
 }
 
 function setRange(range) {
@@ -1216,6 +1299,7 @@ function selectWeek(index) {
   if (previous !== null) updateWeekClass(previous);
   updateWeekClass(index);
   renderSelectedDetail(index);
+  openMobilePanel("inspector", { focus: false });
 }
 
 function handleMapHover(event) {
