@@ -94,6 +94,15 @@ body.needs-login {
   overflow: auto;
 }
 
+body.auth-loading {
+  overflow: hidden;
+}
+
+body.auth-loading .app,
+body.auth-loading .login-screen {
+  display: none !important;
+}
+
 body.needs-login .app,
 body:not(.needs-login) .login-screen {
   display: none;
@@ -1383,12 +1392,13 @@ textarea {
     inset: 0;
     display: grid !important;
     grid-template-rows: auto minmax(0, 1fr);
+    row-gap: 2mm;
     width: auto;
     height: auto;
     min-height: 0;
     box-sizing: border-box;
     margin: 0;
-    padding: 9mm 10mm 10mm;
+    padding: 9mm 11mm 14mm;
     overflow: hidden;
     background: #fff;
     color: #141612;
@@ -1432,7 +1442,7 @@ textarea {
 
   #printSheetName {
     max-width: 96mm;
-    font-family: var(--serif);
+    font-family: var(--font-serif);
     font-size: 21pt;
     font-weight: 820;
     line-height: 0.95;
@@ -1477,7 +1487,7 @@ textarea {
     gap: 1.2mm;
     margin: 0;
     color: #141612;
-    font-family: var(--serif);
+    font-family: var(--font-serif);
     line-height: 1;
     white-space: nowrap;
   }
@@ -1490,7 +1500,7 @@ textarea {
 
   .print-stats span {
     color: #696b61;
-    font-family: var(--sans);
+    font-family: var(--font-sans);
     font-size: 7.5pt;
     font-weight: 700;
   }

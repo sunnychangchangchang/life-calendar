@@ -182,6 +182,7 @@ const state = {
     hydrating: false,
     signingOut: false
   },
+  authLoading: true,
   viewBox: null,
   targetViewBox: null,
   fitViewBox: null,
@@ -454,6 +455,7 @@ async function initCloud() {
     state.cloud.enabled = false;
     updateAuthUi();
     updateLoginVisibility();
+    setAuthLoading(false);
     return;
   }
 
@@ -465,6 +467,7 @@ async function initCloud() {
   const { data, error } = await state.cloud.client.auth.getSession();
   if (error) {
     setAuthStatus(t("cloudSyncFailed", { message: error.message }), true);
+    setAuthLoading(false);
     return;
   }
 
@@ -472,6 +475,7 @@ async function initCloud() {
   state.cloud.client.auth.onAuthStateChange((_event, session) => {
     handleCloudSession(session);
   });
+  setAuthLoading(false);
 }
 
 async function authenticateWithSupabase(mode) {
@@ -713,6 +717,11 @@ function clearAuthForm() {
 function updateLoginVisibility() {
   const needsCloudAuth = state.cloud.enabled && !state.cloud.session;
   document.body.classList.toggle("needs-login", needsCloudAuth || !state.profileReady || state.loginOpen);
+}
+
+function setAuthLoading(loading) {
+  state.authLoading = Boolean(loading);
+  document.body.classList.toggle("auth-loading", state.authLoading);
 }
 
 function applyLoginProfile() {
@@ -1456,7 +1465,7 @@ function getAgeRowY(age, layout) {
 function getPrintViewBox() {
   const bounds = state.mapBounds;
   const printAspect = 194 / 270;
-  const margin = 32;
+  const margin = 82;
   let height = bounds.height + margin * 2;
   let width = height * printAspect;
 
