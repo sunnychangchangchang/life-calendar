@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>Life Calendar</title>
-  <link rel="stylesheet" href="./styles.css?v=20260828-07">
+  <link rel="stylesheet" href="./styles.css?v=20260828-08">
   <script src="./supabase-config.js?v=20260828-03"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./app.js?v=20260828-07" defer></script>
+  <script src="./app.js?v=20260828-08" defer></script>
 </head>
 <body class="auth-loading needs-login">
   <section class="login-screen" id="loginScreen" aria-label="Life Calendar profile setup">
@@ -124,7 +124,9 @@
       <aside class="settings-panel" id="settingsPanel" aria-label="Calendar settings">
         <header class="mobile-drawer-header">
           <strong data-i18n="mobileSettings">設定</strong>
-          <button type="button" class="mobile-drawer-close" id="mobileSettingsClose" data-i18n="mobileDone">完成</button>
+          <button type="button" class="mobile-drawer-close" id="mobileSettingsClose" aria-label="完成" title="完成">
+            <span class="close-glyph" aria-hidden="true"><i></i><i></i></span>
+          </button>
         </header>
 
         <a class="brand" href="#calendar" aria-label="Life Calendar">
@@ -182,7 +184,9 @@
             </span>
             <span data-i18n="brand">人生週曆</span>
           </a>
-          <button type="button" class="mobile-action" id="mobileSettingsOpen" aria-controls="settingsPanel" aria-expanded="false" data-i18n="mobileSettings">設定</button>
+          <button type="button" class="mobile-action" id="mobileSettingsOpen" aria-controls="settingsPanel" aria-expanded="false" aria-label="設定" title="設定">
+            <span class="menu-glyph" aria-hidden="true"><i></i><i></i><i></i></span>
+          </button>
         </header>
 
         <section class="summary-row">
@@ -223,7 +227,10 @@
               <button type="button" class="ghost-button" id="zoomOut" aria-label="Zoom out">-</button>
               <span id="zoomReadout">100%</span>
               <button type="button" class="ghost-button" id="zoomIn" aria-label="Zoom in">+</button>
-              <button type="button" class="ghost-button" id="resetZoom" data-i18n="resetZoom">重置</button>
+              <button type="button" class="ghost-button" id="resetZoom" aria-label="重置">
+                <span class="reset-glyph" aria-hidden="true">&#8634;</span>
+                <span data-i18n="resetZoom">重置</span>
+              </button>
             </div>
           </div>
         </section>
@@ -232,7 +239,9 @@
       <aside class="inspector" id="journal" aria-label="Week journal">
         <header class="mobile-drawer-header">
           <strong data-i18n="mobileWeekDetails">週記錄</strong>
-          <button type="button" class="mobile-drawer-close" id="mobileInspectorClose" data-i18n="mobileDone">完成</button>
+          <button type="button" class="mobile-drawer-close" id="mobileInspectorClose" aria-label="完成" title="完成">
+            <span class="close-glyph" aria-hidden="true"><i></i><i></i></span>
+          </button>
         </header>
 
         <section class="panel-section selected-panel">

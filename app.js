@@ -278,6 +278,7 @@ const els = {
   rangeDecade: $("#rangeDecade"),
   rangeYear: $("#rangeYear"),
   rangeLife: $("#rangeLife"),
+  resetZoom: $("#resetZoom"),
   settingsPanel: $("#settingsPanel"),
   inspector: $("#journal"),
   mobileBackdrop: $("#mobileBackdrop"),
@@ -371,10 +372,16 @@ function bindEvents() {
     button.addEventListener("click", () => setRange(button.dataset.mobileRange));
   });
 
-  els.mobileSettingsOpen.addEventListener("click", () => openMobilePanel("settings"));
-  els.mobileSettingsClose.addEventListener("click", () => closeMobilePanels());
-  els.mobileInspectorClose.addEventListener("click", () => closeMobilePanels());
-  els.mobileBackdrop.addEventListener("click", () => closeMobilePanels());
+  els.mobileSettingsOpen.addEventListener("click", (event) => {
+    openMobilePanel("settings", { focus: event.detail === 0 });
+  });
+  els.mobileSettingsClose.addEventListener("click", (event) => {
+    closeMobilePanels({ restoreFocus: event.detail === 0 });
+  });
+  els.mobileInspectorClose.addEventListener("click", (event) => {
+    closeMobilePanels({ restoreFocus: event.detail === 0 });
+  });
+  els.mobileBackdrop.addEventListener("click", () => closeMobilePanels({ restoreFocus: false }));
 
   $("#zoomIn").addEventListener("click", () => {
     const rect = els.calendarStage.getBoundingClientRect();
@@ -1014,6 +1021,13 @@ function updateText() {
   els.languageToggle.textContent = state.lang === "zh" ? "EN" : "中文";
   els.noteInput.placeholder = t("notePlaceholder");
   els.mobileBackdrop.setAttribute("aria-label", t("mobileClosePanel"));
+  els.mobileSettingsOpen.setAttribute("aria-label", t("mobileSettings"));
+  els.mobileSettingsOpen.setAttribute("title", t("mobileSettings"));
+  [els.mobileSettingsClose, els.mobileInspectorClose].forEach((button) => {
+    button.setAttribute("aria-label", t("mobileDone"));
+    button.setAttribute("title", t("mobileDone"));
+  });
+  els.resetZoom.setAttribute("aria-label", t("resetZoom"));
 }
 
 function updateNavState() {
