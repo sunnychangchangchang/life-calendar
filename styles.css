@@ -319,11 +319,12 @@ body:not(.needs-login) .login-screen {
 
 .range-tabs {
   display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  background: rgba(255, 255, 252, 0.42);
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
 }
 
 .range-tabs button,
@@ -347,20 +348,17 @@ body:not(.needs-login) .login-screen {
 }
 
 .range-tabs button {
-  min-height: 52px;
+  min-height: 46px;
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   border: 0;
-  border-top: 1px solid var(--border);
   border-radius: 0;
   background: transparent;
-  padding: 0 18px;
-  text-align: left;
-}
-
-.range-tabs button:first-child {
-  border-top: 0;
+  padding: 0 4px;
+  font-size: 15px;
+  text-align: center;
 }
 
 .range-tabs button:hover,
@@ -370,13 +368,21 @@ body:not(.needs-login) .login-screen {
 }
 
 .range-tabs button[aria-pressed="true"] {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: #fff;
+  background: transparent;
+  color: var(--ink);
+  font-weight: 760;
 }
 
 .range-tabs button[aria-pressed="true"]::after {
-  display: none;
+  content: "";
+  position: absolute;
+  right: 18%;
+  bottom: -1px;
+  left: 18%;
+  display: block;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--ink);
 }
 
 .ghost-button {
@@ -446,32 +452,51 @@ body:not(.needs-login) .login-screen {
 
 .utility-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin-top: 2px;
+  border-top: 1px solid var(--border);
 }
 
 .utility-actions button {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: 8px;
 }
 
-.utility-value,
-.utility-arrow {
-  display: none;
-}
-
-#languageToggle .utility-label {
-  display: none;
-}
-
-#languageToggle .utility-value {
-  display: inline;
+.settings-panel .utility-actions .ghost-button {
+  min-height: 48px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+  padding: 0 2px;
+  font-size: 15px;
+  font-weight: 650;
 }
 
 .utility-actions .full {
-  grid-column: 1 / -1;
+  grid-column: auto;
+}
+
+.settings-panel .utility-actions .ghost-button:last-child {
+  border-bottom: 0;
+  color: var(--muted);
+}
+
+.settings-panel .utility-label,
+.settings-panel .utility-value,
+.settings-panel .utility-arrow,
+.settings-panel #languageToggle .utility-label {
+  display: inline;
+}
+
+.settings-panel .utility-value,
+.settings-panel .utility-arrow {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 620;
 }
 
 .workspace {
@@ -798,9 +823,9 @@ textarea {
 }
 
 .week-cell.now {
-  fill: var(--past);
-  stroke: var(--now);
-  stroke-width: 1.5;
+  stroke: var(--surface);
+  stroke-width: 1.25;
+  filter: drop-shadow(0 2px 4px color-mix(in srgb, var(--now) 38%, transparent));
 }
 
 .week-cell.calm {
@@ -817,6 +842,32 @@ textarea {
 
 .week-cell.blank {
   fill: var(--future);
+}
+
+.week-cell.now:not(.calm):not(.bright):not(.low):not(.blank) {
+  fill: var(--now);
+}
+
+.week-now-halo {
+  fill: none;
+  stroke: color-mix(in srgb, var(--now) 78%, var(--ink));
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: current-week-breathe 2.8s ease-in-out infinite;
+}
+
+@keyframes current-week-breathe {
+  0%, 100% {
+    opacity: 0.58;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.16);
+  }
 }
 
 .week-cell.selected {
@@ -1589,16 +1640,31 @@ textarea {
 
   .metrics strong {
     gap: 4px;
-    font-size: clamp(24px, 7.4vw, 32px);
+    font-size: clamp(23px, 7vw, 30px);
     line-height: 1;
   }
 
   .metrics .metric-number {
-    font-size: clamp(24px, 7.4vw, 32px);
+    font-size: clamp(23px, 7vw, 30px);
   }
 
   .metrics .metric-unit {
     font-size: 12px;
+  }
+
+  html[lang="en"] .metrics strong {
+    display: grid;
+    justify-items: start;
+    align-content: center;
+    gap: 2px;
+  }
+
+  html[lang="en"] .metrics .metric-unit {
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 10.5px;
+    line-height: 1;
+    text-overflow: ellipsis;
   }
 
   .mobile-range-tabs {
@@ -2274,5 +2340,11 @@ textarea {
     shape-rendering: geometricPrecision;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
+  }
+
+  .print-map .week-now-halo {
+    animation: none;
+    opacity: 0.9;
+    stroke-width: 0.65;
   }
 }

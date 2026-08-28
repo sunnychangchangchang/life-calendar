@@ -215,7 +215,9 @@ const state = {
   wheelPanRaf: null,
   saveButtonTimer: null,
   mobilePanel: null,
-  mobileTrigger: null
+  mobileTrigger: null,
+  currentCellIndex: null,
+  dayRefreshTimer: null
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -298,9 +300,10 @@ const els = {
 loadSavedState();
 syncLoginFields();
 updateLoginVisibility();
-renderCalendar({ fit: true });
+renderCalendar({ fit: true, focusCurrent: true });
 bindEvents();
 initCloud();
+scheduleDayRefresh();
 
 function loadSavedState() {
   const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
@@ -340,7 +343,7 @@ function bindEvents() {
 
   [els.nameInput, els.birthdayInput, els.lifespanInput, els.decadeInput].forEach((input) => {
     input.addEventListener("input", () => {
-      renderCalendar({ fit: true });
+      renderCalendar({ fit: true, focusCurrent: true });
       syncLoginFields();
       saveState();
     });
@@ -673,7 +676,7 @@ async function handleCloudSession(session) {
     state.loginOpen = false;
     saveState({ cloud: false });
     updateLoginVisibility();
-    renderCalendar({ fit: true });
+    renderCalendar({ fit: true, focusCurrent: true });
   } else {
     state.profileReady = false;
     state.loginOpen = true;
@@ -838,7 +841,7 @@ function applyLoginProfile() {
   state.viewBox = null;
   state.fitViewBox = null;
   updateLoginVisibility();
-  renderCalendar({ fit: true });
+  renderCalendar({ fit: true, focusCurrent: true });
   saveState();
 }
 
@@ -1077,6 +1080,7 @@ function getWeekInfo(index) {
 }
 
 function updateText() {
+  document.documentElement.lang = state.lang === "zh" ? "zh-Hant" : "en";
   updateLoginCopyMode();
   $$("[data-i18n]").forEach((node) => {
     node.textContent = t(node.dataset.i18n);
@@ -1109,14 +1113,17 @@ function setRange(range) {
   state.viewBox = null;
   state.fitViewBox = null;
   els.calendarStage.scrollTop = 0;
-  renderCalendar({ fit: true });
+  renderCalendar({ fit: true, focusCurrent: true });
 }
 
-function renderCalendar({ fit }) {
+function renderCalendar({ fit = false, focusCurrent = false } = {}) {
   updateText();
   updateNavState();
 
   const data = getModel();
+  const currentWeekChanged = state.currentCellIndex !== null
+    && state.currentCellIndex !== data.currentCellIndex;
+  state.currentCellIndex = data.currentCellIndex;
   els.lifespanInput.value = data.lifespan;
   els.decadeInput.value = data.decadeStart;
   els.lifespanInput.min = minLifespan;
@@ -1136,7 +1143,16 @@ function renderCalendar({ fit }) {
 
   renderMap(data);
   renderSelectedDetail(state.selectedWeek);
-  if (fit) window.requestAnimationFrame(() => fitMap(true));
+  if (fit) {
+    window.requestAnimationFrame(() => {
+      fitMap(true);
+      if (focusCurrent || currentWeekChanged) {
+        window.requestAnimationFrame(() => scrollCurrentWeekIntoView());
+      }
+    });
+  } else if (focusCurrent || currentWeekChanged) {
+    window.requestAnimationFrame(() => scrollCurrentWeekIntoView());
+  }
 }
 
 function renderMap(data) {
@@ -1145,6 +1161,7 @@ function renderMap(data) {
   const columnWidth = layout.weeksPerRow * layout.cell + (layout.weeksPerRow - 1) * layout.gap;
   const width = layout.padding * 2 + layout.labelWidth + columnWidth;
   const nodes = [];
+  const overlayNodes = [];
   let y = layout.padding;
   let renderedDecades = 0;
   const ageRowHeight = getAgeRowHeight(layout);
@@ -1178,6 +1195,10 @@ function renderMap(data) {
         const cellY = rowY + weekRow * (layout.cell + layout.gap);
         const label = escapeHtml(t("weekTitle", { age, week: week + 1 }));
         nodes.push(`<rect class="${classes}" data-week="${index}" x="${x}" y="${cellY}" width="${layout.cell}" height="${layout.cell}" rx="${layout.radius}" ry="${layout.radius}" role="button" aria-label="${label}"></rect>`);
+        if (index === data.currentCellIndex) {
+          const haloInset = Math.max(1.4, layout.cell * 0.13);
+          overlayNodes.push(`<rect class="week-now-halo" x="${x - haloInset}" y="${cellY - haloInset}" width="${layout.cell + haloInset * 2}" height="${layout.cell + haloInset * 2}" rx="${layout.radius + haloInset}" ry="${layout.radius + haloInset}" aria-hidden="true"></rect>`);
+        }
         if (hasWeekRecords(index)) {
           const dotRadius = Math.max(1.2, layout.cell * 0.12);
           const dotInset = Math.max(2, layout.cell * 0.18);
@@ -1194,9 +1215,41 @@ function renderMap(data) {
   const height = Math.max(layout.cell, y - layout.rowGap + layout.padding);
   state.mapBounds = { x: 0, y: 0, width, height };
   els.calendarMap.dataset.range = state.range;
-  els.calendarMap.innerHTML = nodes.join("");
+  els.calendarMap.innerHTML = nodes.concat(overlayNodes).join("");
 
   setViewBox(getFitViewBox(), { constrain: false });
+}
+
+function scrollCurrentWeekIntoView() {
+  const cell = els.calendarMap.querySelector(".week-cell.now");
+  if (!cell || els.calendarStage.scrollHeight <= els.calendarStage.clientHeight + 1) return;
+
+  const stageRect = els.calendarStage.getBoundingClientRect();
+  const cellRect = cell.getBoundingClientRect();
+  const safeTop = stageRect.top + stageRect.height * 0.18;
+  const safeBottom = stageRect.bottom - stageRect.height * 0.18;
+  if (cellRect.top >= safeTop && cellRect.bottom <= safeBottom) return;
+
+  const target = els.calendarStage.scrollTop
+    + cellRect.top - stageRect.top
+    - stageRect.height * 0.42
+    + cellRect.height / 2;
+  const maxScroll = Math.max(0, els.calendarStage.scrollHeight - els.calendarStage.clientHeight);
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  els.calendarStage.scrollTo({
+    top: clamp(target, 0, maxScroll),
+    behavior: reducedMotion ? "auto" : "smooth"
+  });
+}
+
+function scheduleDayRefresh() {
+  window.clearTimeout(state.dayRefreshTimer);
+  const now = new Date();
+  const nextDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 2);
+  state.dayRefreshTimer = window.setTimeout(() => {
+    renderCalendar({ fit: true });
+    scheduleDayRefresh();
+  }, Math.max(1000, nextDay.getTime() - now.getTime()));
 }
 
 function getMapLayout() {
@@ -1878,7 +1931,7 @@ function restoreAfterPrint() {
     state.range = state.previousPrintRange;
     state.previousPrintRange = null;
   }
-  renderCalendar({ fit: true });
+  renderCalendar({ fit: true, focusCurrent: true });
 }
 
 function renderPrintSheet(data, printBox) {
