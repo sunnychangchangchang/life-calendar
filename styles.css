@@ -1025,21 +1025,41 @@ textarea {
   right: 10px;
   width: 28px;
   min-width: 28px;
+  height: 28px;
   min-height: 28px;
   border: 1px solid var(--border);
   border-radius: 50%;
   background: rgba(251, 250, 246, 0.68);
   color: var(--muted);
   padding: 0;
-  font-family: var(--font-ui);
-  font-size: 20px;
-  font-weight: 720;
-  line-height: 1;
+  display: inline-grid;
+  place-items: center;
 }
 
 .record-delete:hover {
   border-color: var(--ink);
   color: var(--ink);
+}
+
+.record-delete::before,
+.record-delete::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 11px;
+  height: 1.5px;
+  border-radius: 999px;
+  background: currentColor;
+  transform-origin: center;
+}
+
+.record-delete::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.record-delete::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
 }
 
 .mood-grid {

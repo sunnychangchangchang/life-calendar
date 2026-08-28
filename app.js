@@ -52,7 +52,7 @@ const translations = {
     deleteRecord: "刪除",
     noteIdle: "先選一週。",
     noteSelectedEmpty: "",
-    noteSelectedSaved: "{count} 筆紀錄。",
+    noteSelectedSaved: "",
     noteSaving: "正在儲存...",
     noteSaved: "已新增到這一週。",
     noteDeleted: "已刪除這筆紀錄。",
@@ -129,7 +129,7 @@ const translations = {
     deleteRecord: "Delete",
     noteIdle: "Select a week.",
     noteSelectedEmpty: "",
-    noteSelectedSaved: "{count} records.",
+    noteSelectedSaved: "",
     noteSaving: "Saving...",
     noteSaved: "Added to this week.",
     noteDeleted: "Record deleted.",
@@ -1160,7 +1160,7 @@ function renderRecordList(index) {
     button.dataset.deleteRecord = record.id;
     button.setAttribute("aria-label", t("deleteRecord"));
     button.title = t("deleteRecord");
-    button.textContent = "×";
+    button.textContent = "";
 
     item.append(bullet, text, button);
     els.recordList.append(item);
