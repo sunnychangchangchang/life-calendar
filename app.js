@@ -240,6 +240,8 @@ const els = {
   selectedTitle: $("#selectedTitle"),
   selectedMeta: $("#selectedMeta"),
   eventCard: $("#eventCard"),
+  recordsSection: $("#recordsSection"),
+  moodSection: $("#moodSection"),
   noteInput: $("#noteInput"),
   recordEmpty: $("#recordEmpty"),
   recordList: $("#recordList"),
@@ -1097,9 +1099,11 @@ function renderSelectedDetail(index) {
     els.selectedTitle.textContent = t("noWeek");
     els.selectedMeta.textContent = t("hoverHint");
     if (els.eventCard) els.eventCard.innerHTML = `<strong>${t("noEvent")}</strong><p>${t("emptyWeek")}</p>`;
+    els.recordsSection.hidden = true;
+    els.moodSection.hidden = true;
     els.noteInput.value = "";
     renderRecordList(null);
-    setNoteStatus(t("noteIdle"));
+    setNoteStatus("");
     return;
   }
 
@@ -1114,6 +1118,8 @@ function renderSelectedDetail(index) {
   els.selectedTitle.textContent = t("weekTitle", { age, week });
   els.selectedMeta.textContent = weekRange(data, index);
   if (els.eventCard) els.eventCard.innerHTML = `<strong>${escapeHtml(title)}</strong><p>${escapeHtml(body)}</p>`;
+  els.recordsSection.hidden = false;
+  els.moodSection.hidden = false;
   els.noteInput.value = "";
   renderRecordList(index);
   setNoteStatus(info.records.length ? t("noteSelectedSaved", { count: info.records.length }) : t("noteSelectedEmpty"));

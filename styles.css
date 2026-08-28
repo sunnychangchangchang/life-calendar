@@ -52,7 +52,7 @@ body {
   margin: 0;
   overflow: hidden;
   font-family: var(--font-main);
-  font-size: 21px;
+  font-size: 18px;
   color: var(--ink);
   background:
     linear-gradient(90deg, rgba(23, 25, 22, 0.024) 1px, transparent 1px) 0 0 / 36px 36px,
@@ -87,7 +87,7 @@ textarea:focus-visible,
 
 .app {
   height: 100dvh;
-  padding: 20px;
+  padding: 16px;
 }
 
 body.needs-login {
@@ -279,13 +279,13 @@ body:not(.needs-login) .login-screen {
   color: var(--ink);
   text-decoration: none;
   font-family: var(--font-display);
-  font-size: 26px;
+  font-size: 22px;
   font-weight: 700;
 }
 
 .brand-mark {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 2px;
@@ -321,14 +321,14 @@ body:not(.needs-login) .login-screen {
 .ghost-button,
 .solid-button,
 .google-button {
-  min-height: 64px;
+  min-height: 54px;
   border: 1px solid transparent;
   border-radius: var(--radius-md);
   padding: 0 var(--space-4);
   background: transparent;
   color: var(--muted);
   font-family: var(--font-ui);
-  font-size: 21px;
+  font-size: 18px;
   font-weight: 650;
   transition:
     background 180ms var(--ease),
@@ -338,7 +338,7 @@ body:not(.needs-login) .login-screen {
 }
 
 .range-tabs button {
-  min-height: 64px;
+  min-height: 52px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -346,7 +346,7 @@ body:not(.needs-login) .login-screen {
   border-top: 1px solid var(--border);
   border-radius: 0;
   background: transparent;
-  padding: 0 22px;
+  padding: 0 18px;
   text-align: left;
 }
 
@@ -449,20 +449,20 @@ body:not(.needs-login) .login-screen {
   height: 100%;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(330px, 380px) minmax(0, 1fr) minmax(330px, 380px);
-  gap: 24px;
+  grid-template-columns: minmax(300px, 340px) minmax(0, 1fr) minmax(300px, 340px);
+  gap: 20px;
 }
 
 .settings-panel {
   min-height: 0;
-  max-height: calc(100dvh - 40px);
+  max-height: calc(100dvh - 32px);
   overflow: auto;
   position: sticky;
-  top: 20px;
+  top: 16px;
   display: grid;
   align-content: start;
-  gap: 28px;
-  padding: 36px;
+  gap: 20px;
+  padding: 28px;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   background: var(--surface-soft);
@@ -500,7 +500,7 @@ p {
 label span {
   color: var(--muted);
   font-family: var(--font-ui);
-  font-size: 19px;
+  font-size: 16px;
   font-weight: 680;
   line-height: 1.25;
 }
@@ -513,7 +513,7 @@ h1 {
   max-width: 640px;
   color: var(--ink);
   font-family: var(--font-display);
-  font-size: 82px;
+  font-size: 72px;
   font-weight: 650;
   line-height: 1.08;
   letter-spacing: 0;
@@ -526,7 +526,7 @@ h1 span {
 
 h2 {
   font-family: var(--font-display);
-  font-size: 52px;
+  font-size: 44px;
   font-weight: 650;
   line-height: 1.16;
   letter-spacing: 0;
@@ -538,15 +538,15 @@ h2 {
   max-width: 640px;
   margin-top: var(--space-2);
   color: var(--muted);
-  font-size: 23px;
-  line-height: 1.62;
+  font-size: 19px;
+  line-height: 1.55;
 }
 
 .settings-panel .intro {
   max-width: none;
   margin-top: 0;
-  font-size: 21px;
-  line-height: 1.62;
+  font-size: 18px;
+  line-height: 1.55;
 }
 
 .metrics {
@@ -563,11 +563,11 @@ h2 {
 
 .metrics article {
   min-width: 0;
-  min-height: 118px;
+  min-height: 92px;
   display: grid;
   align-content: center;
-  gap: 10px;
-  padding: 0 clamp(16px, 1.5vw, 28px);
+  gap: 8px;
+  padding: 0 clamp(14px, 1.2vw, 22px);
   border-left: 1px solid var(--border);
   background: transparent;
 }
@@ -579,7 +579,7 @@ h2 {
 
 .metrics span {
   color: var(--muted);
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 680;
 }
 
@@ -590,7 +590,7 @@ h2 {
   max-width: 100%;
   min-width: 0;
   font-family: var(--font-data);
-  font-size: clamp(56px, 7.4cqw, 82px);
+  font-size: clamp(46px, 6.2cqw, 68px);
   font-weight: 680;
   line-height: 0.96;
   letter-spacing: 0;
@@ -600,14 +600,14 @@ h2 {
 .metrics .metric-number {
   min-width: 0;
   color: var(--ink);
-  font-size: clamp(56px, 7.4cqw, 82px);
+  font-size: clamp(46px, 6.2cqw, 68px);
   font-weight: 680;
 }
 
 .metrics .metric-unit {
   flex: 0 0 auto;
   color: var(--muted);
-  font-size: clamp(18px, 2.1cqw, 27px);
+  font-size: clamp(16px, 1.7cqw, 22px);
   font-weight: 650;
   line-height: 1;
   white-space: nowrap;
@@ -638,18 +638,18 @@ label {
 input,
 textarea {
   width: 100%;
-  min-height: 64px;
+  min-height: 52px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: rgba(255, 255, 252, 0.62);
   color: var(--ink);
   padding: 12px 14px;
   font-family: var(--font-ui);
-  font-size: 21px;
+  font-size: 18px;
 }
 
 textarea {
-  min-height: 150px;
+  min-height: 118px;
   resize: vertical;
   line-height: 1.6;
 }
@@ -848,9 +848,9 @@ textarea {
 
 .stage-footer {
   position: absolute;
-  left: var(--space-5);
-  right: var(--space-5);
-  bottom: var(--space-5);
+  left: var(--space-4);
+  right: var(--space-4);
+  bottom: var(--space-4);
   z-index: 3;
   display: flex;
   align-items: flex-end;
@@ -876,15 +876,15 @@ textarea {
 }
 
 .zoom-bar .ghost-button {
-  min-width: 50px;
-  min-height: 48px;
+  min-width: 46px;
+  min-height: 44px;
   padding: 0 var(--space-3);
 }
 
 #zoomReadout {
   min-width: 74px;
   color: var(--muted);
-  font-size: 19px;
+  font-size: 17px;
   font-weight: 760;
   text-align: center;
   font-variant-numeric: tabular-nums;
@@ -895,8 +895,8 @@ textarea {
   overflow: auto;
   display: grid;
   align-content: start;
-  gap: 30px;
-  padding: 36px;
+  gap: 20px;
+  padding: 28px;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   background: var(--surface-soft);
@@ -906,13 +906,13 @@ textarea {
 
 .panel-section {
   display: grid;
-  gap: var(--space-3);
-  padding-top: var(--space-5);
+  gap: 10px;
+  padding-top: 18px;
   border-top: 1px solid var(--border);
 }
 
 .selected-panel {
-  gap: 14px;
+  gap: 10px;
   padding-bottom: 2px;
 }
 
@@ -922,7 +922,7 @@ textarea {
 
 .selected-panel h2 {
   max-width: 100%;
-  font-size: clamp(38px, 2.35vw, 48px);
+  font-size: clamp(32px, 2.05vw, 40px);
   line-height: 1.18;
   overflow-wrap: break-word;
   text-wrap: balance;
@@ -932,7 +932,7 @@ textarea {
   max-width: none;
   margin-top: 0;
   font-family: var(--font-ui);
-  font-size: 21px;
+  font-size: 18px;
   line-height: 1.5;
 }
 
@@ -946,7 +946,7 @@ textarea {
 }
 
 .event-card {
-  padding: 18px;
+  padding: 14px 16px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: rgba(255, 255, 252, 0.58);
@@ -955,13 +955,13 @@ textarea {
 .event-card strong {
   display: block;
   margin-bottom: 6px;
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .event-card p {
   margin: 0;
   color: var(--muted);
-  font-size: 19px;
+  font-size: 17px;
   line-height: 1.5;
 }
 
@@ -972,19 +972,19 @@ textarea {
 
 .record-empty {
   margin: 0;
-  padding: 18px 20px;
+  padding: 14px 16px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: rgba(255, 255, 252, 0.58);
   color: var(--muted);
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1.55;
 }
 
 .record-list {
   display: grid;
   gap: 10px;
-  max-height: 280px;
+  max-height: 190px;
   margin: 0;
   padding: 0;
   overflow: auto;
@@ -995,8 +995,8 @@ textarea {
   display: grid;
   grid-template-columns: 12px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 14px;
-  padding: 18px 20px;
+  gap: 12px;
+  padding: 13px 16px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: rgba(255, 255, 252, 0.66);
@@ -1013,19 +1013,19 @@ textarea {
 .record-item p {
   margin: 0;
   color: var(--ink);
-  font-size: 20px;
-  line-height: 1.58;
+  font-size: 18px;
+  line-height: 1.52;
   overflow-wrap: anywhere;
 }
 
 .record-delete {
-  min-height: 46px;
+  min-height: 42px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: rgba(251, 250, 246, 0.68);
   color: var(--muted);
   padding: 0 14px;
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 720;
 }
 
@@ -1041,7 +1041,7 @@ textarea {
 }
 
 .mood-grid button {
-  min-height: 58px;
+  min-height: 48px;
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -1049,8 +1049,8 @@ textarea {
   border-radius: var(--radius-md);
   background: rgba(255, 255, 252, 0.46);
   color: var(--ink);
-  padding: 0 16px;
-  font-size: 20px;
+  padding: 0 14px;
+  font-size: 17px;
   font-weight: 720;
   transition:
     background 180ms var(--ease),
@@ -1071,9 +1071,9 @@ textarea {
 }
 
 .note-status {
-  min-height: 24px;
+  min-height: 22px;
   color: var(--muted);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 650;
   line-height: 1.45;
 }
@@ -1122,17 +1122,18 @@ textarea {
 
 @media (max-width: 1500px) {
   .app {
-    padding: 18px;
+    padding: 14px;
   }
 
   .workspace {
-    grid-template-columns: 320px minmax(0, 1fr) 320px;
-    gap: 20px;
+    grid-template-columns: 292px minmax(0, 1fr) 292px;
+    gap: 16px;
   }
 
   .settings-panel,
   .inspector {
-    padding: 30px;
+    padding: 22px;
+    gap: 16px;
   }
 
   .summary-row {
@@ -1146,27 +1147,20 @@ textarea {
 
   .metrics strong,
   .metrics .metric-number {
-    font-size: clamp(54px, 8.2cqw, 70px);
+    font-size: clamp(42px, 6.4cqw, 58px);
   }
 
   .metrics .metric-unit {
-    font-size: 20px;
-  }
-
-  .metrics strong {
-    display: grid;
-    grid-template-columns: 1fr;
-    align-items: start;
-    gap: 5px;
+    font-size: 17px;
   }
 
   .metrics article {
-    min-height: 104px;
-    padding: 0 16px;
+    min-height: 82px;
+    padding: 0 14px;
   }
 
   .selected-panel h2 {
-    font-size: 42px;
+    font-size: 34px;
   }
 }
 
@@ -1225,11 +1219,11 @@ textarea {
 
   .metrics strong,
   .metrics .metric-number {
-    font-size: 66px;
+    font-size: 54px;
   }
 
   .metrics .metric-unit {
-    font-size: 24px;
+    font-size: 18px;
   }
 }
 
