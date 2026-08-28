@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>Life Calendar</title>
-  <link rel="stylesheet" href="./styles.css?v=20260827-24">
-  <script src="./supabase-config.js?v=20260827-24"></script>
+  <link rel="stylesheet" href="./styles.css?v=20260827-25">
+  <script src="./supabase-config.js?v=20260827-25"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./app.js?v=20260827-24" defer></script>
+  <script src="./app.js?v=20260827-25" defer></script>
 </head>
 <body class="needs-login">
   <section class="login-screen" id="loginScreen" aria-label="Life Calendar profile setup">
@@ -87,11 +87,25 @@
 
   <section class="print-sheet" id="printSheet" aria-hidden="true">
     <header class="print-sheet-header">
-      <div>
+      <div class="print-identity">
         <p id="printSheetLabel">Life Calendar</p>
         <h1 id="printSheetName">Sunny</h1>
+        <p id="printSheetBirthday"></p>
       </div>
-      <p id="printSheetMeta"></p>
+      <dl class="print-stats" aria-label="Life calendar summary">
+        <div>
+          <dt id="printLivedLabel">已活</dt>
+          <dd><strong id="printLivedValue">0</strong><span id="printLivedUnit">週</span></dd>
+        </div>
+        <div>
+          <dt id="printLeftLabel">剩餘</dt>
+          <dd><strong id="printLeftValue">0</strong><span id="printLeftUnit">週</span></dd>
+        </div>
+        <div>
+          <dt id="printProgressLabel">進度</dt>
+          <dd><strong id="printProgressValue">0</strong><span>%</span></dd>
+        </div>
+      </dl>
     </header>
     <svg class="print-map" id="printMap" role="img" aria-label="Printable weekly life calendar"></svg>
   </section>

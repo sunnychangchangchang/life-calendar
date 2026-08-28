@@ -241,7 +241,15 @@ const els = {
   printSheet: $("#printSheet"),
   printSheetLabel: $("#printSheetLabel"),
   printSheetName: $("#printSheetName"),
-  printSheetMeta: $("#printSheetMeta"),
+  printSheetBirthday: $("#printSheetBirthday"),
+  printLivedLabel: $("#printLivedLabel"),
+  printLivedValue: $("#printLivedValue"),
+  printLivedUnit: $("#printLivedUnit"),
+  printLeftLabel: $("#printLeftLabel"),
+  printLeftValue: $("#printLeftValue"),
+  printLeftUnit: $("#printLeftUnit"),
+  printProgressLabel: $("#printProgressLabel"),
+  printProgressValue: $("#printProgressValue"),
   printMap: $("#printMap"),
   selectedTitle: $("#selectedTitle"),
   selectedMeta: $("#selectedMeta"),
@@ -1448,7 +1456,7 @@ function getAgeRowY(age, layout) {
 function getPrintViewBox() {
   const bounds = state.mapBounds;
   const printAspect = 194 / 270;
-  const margin = 12;
+  const margin = 32;
   let height = bounds.height + margin * 2;
   let width = height * printAspect;
 
@@ -1694,11 +1702,18 @@ function restoreAfterPrint() {
 }
 
 function renderPrintSheet(data, printBox) {
-  const endDate = data.endDate ? data.endDate.toISOString().slice(0, 10) : "";
   const weeksLabel = t("weeks");
   els.printSheetLabel.textContent = t("brand");
   els.printSheetName.textContent = data.name;
-  els.printSheetMeta.textContent = `${formatNumber(data.weeksLived)} ${weeksLabel} / ${formatNumber(data.totalWeeks)} ${weeksLabel} · ${data.progress.toFixed(1)}% · ${els.birthdayInput.value} - ${endDate}`;
+  els.printSheetBirthday.textContent = `${t("fieldBirthday")} ${els.birthdayInput.value}`;
+  els.printLivedLabel.textContent = t("metricLived");
+  els.printLivedValue.textContent = formatNumber(data.weeksLived);
+  els.printLivedUnit.textContent = weeksLabel;
+  els.printLeftLabel.textContent = t("metricLeft");
+  els.printLeftValue.textContent = formatNumber(data.weeksLeft);
+  els.printLeftUnit.textContent = weeksLabel;
+  els.printProgressLabel.textContent = t("metricProgress");
+  els.printProgressValue.textContent = data.progress.toFixed(1);
   els.printMap.dataset.range = "life";
   els.printMap.innerHTML = els.calendarMap.innerHTML;
   els.printMap.setAttribute("viewBox", `${printBox.x} ${printBox.y} ${printBox.width} ${printBox.height}`);
