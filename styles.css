@@ -2079,12 +2079,15 @@ textarea {
 
   .print-sheet {
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
     display: grid !important;
     grid-template-rows: auto minmax(0, 1fr);
     row-gap: 2mm;
-    width: auto;
-    height: auto;
+    width: 210mm;
+    height: 297mm;
+    max-width: none;
+    max-height: none;
     min-height: 0;
     box-sizing: border-box;
     margin: 0;

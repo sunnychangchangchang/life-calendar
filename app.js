@@ -865,19 +865,71 @@ function addDays(date, days) {
 }
 
 function addYears(date, years) {
+  const targetYear = date.getFullYear() + years;
+  const month = date.getMonth();
+  const day = date.getDate();
+  const lastDay = new Date(targetYear, month + 1, 0).getDate();
   const next = new Date(date);
-  next.setFullYear(next.getFullYear() + years);
+  next.setDate(1);
+  next.setFullYear(targetYear);
+  next.setMonth(month);
+  next.setDate(Math.min(day, lastDay));
   return next;
 }
 
-function weeksBetween(start, end) {
-  return Math.max(0, Math.floor((end - start) / 604800000));
+function startOfDay(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function calendarDayNumber(date) {
+  return Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000);
+}
+
+function daysBetween(start, end) {
+  return Math.max(0, calendarDayNumber(end) - calendarDayNumber(start));
 }
 
 function currentAgeFromBirthday(birthday, today = new Date()) {
   if (!birthday || Number.isNaN(birthday.getTime())) return 0;
-  const hadBirthdayThisYear = today >= new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate());
-  return Math.max(0, today.getFullYear() - birthday.getFullYear() - (hadBirthdayThisYear ? 0 : 1));
+  let age = today.getFullYear() - birthday.getFullYear();
+  if (today < addYears(birthday, age)) age -= 1;
+  return Math.max(0, age);
+}
+
+function lifeCellIndexForDate(birthday, date, lifespan) {
+  if (!birthday || Number.isNaN(birthday.getTime()) || date < birthday) return -1;
+  const totalCells = lifespan * 52;
+  const endDate = addYears(birthday, lifespan);
+  if (date >= endDate) return totalCells;
+
+  const age = Math.min(lifespan - 1, currentAgeFromBirthday(birthday, date));
+  const ageStart = addYears(birthday, age);
+  const ageEnd = addYears(birthday, age + 1);
+  const elapsedDays = daysBetween(ageStart, date);
+  const ageDays = Math.max(1, daysBetween(ageStart, ageEnd));
+  const weekInAge = clampInteger(Math.ceil((elapsedDays + 1) * 52 / ageDays) - 1, 0, 51);
+  return age * 52 + weekInAge;
+}
+
+function weekDateRange(birthday, index) {
+  const age = Math.floor(index / 52);
+  const week = index % 52;
+  const ageStart = addYears(birthday, age);
+  const ageEnd = addYears(birthday, age + 1);
+  const ageDays = Math.max(1, daysBetween(ageStart, ageEnd));
+  const startOffset = Math.floor(week * ageDays / 52);
+  const endOffset = Math.max(startOffset, Math.floor((week + 1) * ageDays / 52) - 1);
+  return {
+    start: addDays(ageStart, startOffset),
+    end: addDays(ageStart, endOffset)
+  };
+}
+
+function formatDateKey(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function formatNumber(value) {
@@ -973,9 +1025,14 @@ function getModel() {
   const birthday = new Date(`${els.birthdayInput.value}T00:00:00`);
   const lifespan = clampInteger(els.lifespanInput.value || defaultLifespan, minLifespan, maxLifespan);
   const maxDecadeStart = Math.max(0, Math.floor((lifespan - 1) / 10) * 10);
-  const today = new Date();
-  const totalWeeks = lifespan * 52;
-  const weeksLived = Number.isNaN(birthday.getTime()) ? 0 : Math.min(totalWeeks, weeksBetween(birthday, today));
+  const today = startOfDay(new Date());
+  const validBirthday = !Number.isNaN(birthday.getTime());
+  const endDate = validBirthday ? addYears(birthday, lifespan) : null;
+  const totalDays = validBirthday ? daysBetween(birthday, endDate) : 0;
+  const elapsedDays = validBirthday ? Math.min(totalDays, daysBetween(birthday, today)) : 0;
+  const remainingDays = validBirthday && today < endDate ? daysBetween(today, endDate) : 0;
+  const totalWeeks = Math.ceil(totalDays / 7);
+  const weeksLived = Math.floor(elapsedDays / 7);
   const currentAge = currentAgeFromBirthday(birthday, today);
   const decadeStart = Math.floor(Math.min(currentAge, Math.max(0, lifespan - 1)) / 10) * 10;
 
@@ -987,10 +1044,11 @@ function getModel() {
     maxDecadeStart,
     totalWeeks,
     weeksLived,
-    weeksLeft: Math.max(0, totalWeeks - weeksLived),
-    progress: totalWeeks ? weeksLived / totalWeeks * 100 : 0,
+    weeksLeft: Math.ceil(remainingDays / 7),
+    progress: totalDays ? elapsedDays / totalDays * 100 : 0,
+    currentCellIndex: validBirthday ? lifeCellIndexForDate(birthday, today, lifespan) : -1,
     currentAge,
-    endDate: Number.isNaN(birthday.getTime()) ? null : addYears(birthday, lifespan)
+    endDate
   };
 }
 
@@ -1003,9 +1061,8 @@ function visibleYears(data) {
 
 function weekRange(data, index) {
   if (!data.birthday || Number.isNaN(data.birthday.getTime())) return "";
-  const start = addDays(data.birthday, index * 7);
-  const end = addDays(start, 6);
-  return `${start.toISOString().slice(0, 10)} - ${end.toISOString().slice(0, 10)}`;
+  const range = weekDateRange(data.birthday, index);
+  return `${formatDateKey(range.start)} - ${formatDateKey(range.end)}`;
 }
 
 function getWeekInfo(index) {
@@ -1074,7 +1131,7 @@ function renderCalendar({ fit }) {
   els.printTitle.textContent = t("printTitle", {
     name: data.name,
     start: els.birthdayInput.value,
-    end: data.endDate ? data.endDate.toISOString().slice(0, 10) : ""
+    end: data.endDate ? formatDateKey(data.endDate) : ""
   });
 
   renderMap(data);
@@ -1209,8 +1266,8 @@ function setMetricValue(node, value, unit) {
 function getWeekClasses(data, index) {
   const info = getWeekInfo(index);
   const classes = ["week-cell"];
-  if (index < data.weeksLived) classes.push("lived");
-  if (index === data.weeksLived) classes.push("now");
+  if (index < data.currentCellIndex) classes.push("lived");
+  if (index === data.currentCellIndex) classes.push("now");
   if (info.event) classes.push("milestone");
   if (info.records.length) classes.push("has-note");
   if (["calm", "bright", "low", "blank"].includes(info.mood)) classes.push(info.mood);
@@ -1247,7 +1304,7 @@ function renderSelectedDetail(index) {
   const eventTitle = info.event?.title?.[state.lang];
   const eventBody = info.event?.body?.[state.lang];
   const title = eventTitle || (info.records.length ? t("yourNote") : t("noEvent"));
-  const body = info.note || eventBody || (index < data.weeksLived ? t("pastWeek") : t("futureWeek"));
+  const body = info.note || eventBody || (index < data.currentCellIndex ? t("pastWeek") : t("futureWeek"));
 
   els.selectedTitle.textContent = t("weekTitle", { age, week });
   els.selectedMeta.textContent = weekRange(data, index);
