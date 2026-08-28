@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>Life Calendar</title>
-  <link rel="stylesheet" href="./styles.css?v=20260827-18">
-  <script src="./supabase-config.js?v=20260827-18"></script>
+  <link rel="stylesheet" href="./styles.css?v=20260827-19">
+  <script src="./supabase-config.js?v=20260827-19"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./app.js?v=20260827-18" defer></script>
+  <script src="./app.js?v=20260827-19" defer></script>
 </head>
 <body class="needs-login">
   <section class="login-screen" id="loginScreen" aria-label="Life Calendar profile setup">
@@ -25,8 +25,8 @@
 
       <div class="login-copy">
         <p class="kicker login-kicker" id="loginKicker" data-i18n="loginCloudKicker">登入</p>
-        <h1 id="loginTitle" data-i18n="loginCloudTitle">人生週曆</h1>
-        <p class="intro" id="loginIntro" data-i18n="loginCloudIntro">登入後建立自己的週曆，之後每一週都會同步保存。</p>
+        <h1 id="loginTitle" data-i18n="loginCloudTitle">一週一格</h1>
+        <p class="intro" id="loginIntro" data-i18n="loginCloudIntro">把一生拆成可以回望的週。</p>
       </div>
 
       <section class="auth-panel" id="authPanel" hidden>
@@ -70,7 +70,7 @@
         <button type="button" class="ghost-button full" id="loginDemo" data-i18n="loginDemo">使用示範資料</button>
       </form>
 
-      <p class="login-hint" data-i18n="loginLocal">未設定 Supabase 時，資料只存在此瀏覽器；設定後會用雲端帳號同步。</p>
+      <p class="login-hint" data-i18n="loginLocal">記錄重要事件、標記當週狀態，最後把完整人生濃縮成一張 A4。</p>
     </div>
 
     <div class="login-preview" aria-hidden="true">

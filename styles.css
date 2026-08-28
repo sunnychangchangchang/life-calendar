@@ -99,10 +99,6 @@ body:not(.needs-login) .login-screen {
   display: none;
 }
 
-body.cloud-enabled .login-hint {
-  display: none;
-}
-
 .login-screen {
   min-height: 100dvh;
   width: min(100%, 1000px);
