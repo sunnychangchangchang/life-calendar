@@ -14,6 +14,7 @@ A static bilingual life calendar app. Users sign in with Supabase Auth, set a na
 ## Supabase
 
 Run `supabase-schema.sql` in Supabase SQL Editor before production use.
+Run it again after pulling this version if your table already exists, because the mood field now supports a manual blank override for past weeks.
 
 In Supabase Authentication URL Configuration, set:
 

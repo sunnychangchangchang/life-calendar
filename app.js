@@ -389,9 +389,8 @@ function bindEvents() {
     button.addEventListener("click", async () => {
       if (state.selectedWeek === null) return;
       const selectedWeek = state.selectedWeek;
-      const mood = button.dataset.mood;
-      if (mood) state.moods[selectedWeek] = mood;
-      else delete state.moods[selectedWeek];
+      const mood = button.dataset.mood || "blank";
+      state.moods[selectedWeek] = mood;
       updateWeekClass(selectedWeek);
       renderSelectedDetail(selectedWeek);
       setNoteStatus(t("noteSaving"), "saving");
@@ -1079,7 +1078,7 @@ function getWeekClasses(data, index) {
   if (index === data.weeksLived) classes.push("now");
   if (info.event) classes.push("milestone");
   if (info.records.length) classes.push("has-note");
-  if (["calm", "bright", "low"].includes(info.mood)) classes.push(info.mood);
+  if (["calm", "bright", "low", "blank"].includes(info.mood)) classes.push(info.mood);
   if (index === state.selectedWeek) classes.push("selected");
   return classes.join(" ");
 }

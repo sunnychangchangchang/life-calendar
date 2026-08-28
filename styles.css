@@ -762,6 +762,10 @@ textarea {
   fill: var(--low);
 }
 
+.week-cell.blank {
+  fill: var(--future);
+}
+
 .week-cell.selected {
   stroke: var(--ink);
   stroke-width: 2;

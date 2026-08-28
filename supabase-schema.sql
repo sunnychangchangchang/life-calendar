@@ -12,10 +12,17 @@ create table if not exists public.life_calendar_weeks (
   user_id uuid not null references auth.users(id) on delete cascade,
   week_index integer not null check (week_index >= 0 and week_index < 5200),
   note text not null default '',
-  mood text not null default '' check (mood in ('', 'calm', 'bright', 'low')),
+  mood text not null default '' check (mood in ('', 'calm', 'bright', 'low', 'blank')),
   updated_at timestamptz not null default now(),
   primary key (user_id, week_index)
 );
+
+alter table public.life_calendar_weeks
+  drop constraint if exists life_calendar_weeks_mood_check;
+
+alter table public.life_calendar_weeks
+  add constraint life_calendar_weeks_mood_check
+  check (mood in ('', 'calm', 'bright', 'low', 'blank'));
 
 alter table public.life_calendar_profiles enable row level security;
 alter table public.life_calendar_weeks enable row level security;
