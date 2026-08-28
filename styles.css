@@ -1413,11 +1413,11 @@ textarea {
   .print-sheet-header {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(72mm, auto);
-    align-items: end;
-    gap: 10mm;
+    align-items: center;
+    gap: 12mm;
     min-height: 0;
     margin: 0;
-    padding: 0 0 4mm;
+    padding: 0 0 4.5mm;
     border-bottom: 0.25mm solid #1f211e;
   }
 
@@ -1429,40 +1429,43 @@ textarea {
   }
 
   .print-identity {
+    display: grid;
+    gap: 1mm;
     min-width: 0;
+    padding-top: 0.6mm;
   }
 
   #printSheetLabel {
-    margin-bottom: 1.2mm;
     color: #696b61;
-    font-size: 8pt;
+    font-size: 7.8pt;
     font-weight: 720;
-    line-height: 1.1;
-  }
-
-  #printSheetName {
-    max-width: 96mm;
-    font-family: var(--font-serif);
-    font-size: 21pt;
-    font-weight: 820;
-    line-height: 0.95;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  #printSheetBirthday {
-    margin-top: 2mm;
-    color: #696b61;
-    font-size: 8.2pt;
-    font-weight: 620;
     line-height: 1.2;
   }
 
+  #printSheetName {
+    max-width: 98mm;
+    font-family: var(--font-serif);
+    font-size: 20.5pt;
+    font-weight: 820;
+    line-height: 1.18;
+    padding: 0.2mm 0 0.8mm;
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  #printSheetBirthday {
+    color: #696b61;
+    font-size: 8pt;
+    font-weight: 620;
+    line-height: 1.25;
+  }
+
   .print-stats {
+    align-self: center;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 6mm;
+    gap: 7mm;
     margin: 0;
     padding: 0;
   }
