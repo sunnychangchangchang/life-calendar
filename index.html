@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>Life Calendar</title>
-  <link rel="stylesheet" href="./styles.css?v=20260827-23">
-  <script src="./supabase-config.js?v=20260827-23"></script>
+  <link rel="stylesheet" href="./styles.css?v=20260827-24">
+  <script src="./supabase-config.js?v=20260827-24"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./app.js?v=20260827-23" defer></script>
+  <script src="./app.js?v=20260827-24" defer></script>
 </head>
 <body class="needs-login">
   <section class="login-screen" id="loginScreen" aria-label="Life Calendar profile setup">
@@ -83,6 +83,17 @@
         <span></span><span></span><span></span><span></span><span></span>
       </div>
     </div>
+  </section>
+
+  <section class="print-sheet" id="printSheet" aria-hidden="true">
+    <header class="print-sheet-header">
+      <div>
+        <p id="printSheetLabel">Life Calendar</p>
+        <h1 id="printSheetName">Sunny</h1>
+      </div>
+      <p id="printSheetMeta"></p>
+    </header>
+    <svg class="print-map" id="printMap" role="img" aria-label="Printable weekly life calendar"></svg>
   </section>
 
   <div class="app">

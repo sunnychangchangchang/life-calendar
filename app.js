@@ -179,7 +179,8 @@ const state = {
     session: null,
     user: null,
     profileSaveTimer: null,
-    hydrating: false
+    hydrating: false,
+    signingOut: false
   },
   viewBox: null,
   targetViewBox: null,
@@ -237,6 +238,11 @@ const els = {
   hoverCard: $("#hoverCard"),
   zoomReadout: $("#zoomReadout"),
   printTitle: $("#printTitle"),
+  printSheet: $("#printSheet"),
+  printSheetLabel: $("#printSheetLabel"),
+  printSheetName: $("#printSheetName"),
+  printSheetMeta: $("#printSheetMeta"),
+  printMap: $("#printMap"),
   selectedTitle: $("#selectedTitle"),
   selectedMeta: $("#selectedMeta"),
   eventCard: $("#eventCard"),
@@ -523,8 +529,11 @@ function getAppRedirectUrl() {
 
 async function signOutOfSupabase() {
   if (!state.cloud.enabled || !state.cloud.client) return;
+  state.cloud.signingOut = true;
+  setAuthStatus(t("authWorking"));
   const { error } = await state.cloud.client.auth.signOut();
   if (error) {
+    state.cloud.signingOut = false;
     setAuthStatus(t("cloudSyncFailed", { message: error.message }), true);
     return;
   }
@@ -534,19 +543,23 @@ async function signOutOfSupabase() {
   state.profileReady = false;
   state.loginOpen = true;
   resetCloudProfileForm();
+  clearAuthForm();
   updateAuthUi();
   updateLoginVisibility();
-  setAuthStatus(t("authSignedOut"));
+  setAuthStatus("");
+  state.cloud.signingOut = false;
+  saveState({ cloud: false });
 }
 
 async function handleCloudSession(session) {
+  if (state.cloud.signingOut && session) return;
   state.cloud.session = session;
   state.cloud.user = session?.user || null;
   updateAuthUi();
   updateLoginVisibility();
 
   if (!session?.user) {
-    setAuthStatus(t("authPrompt"));
+    if (!state.cloud.signingOut) setAuthStatus(t("authPrompt"));
     return;
   }
 
@@ -563,8 +576,7 @@ async function handleCloudSession(session) {
     state.loginOpen = true;
     updateLoginVisibility();
   }
-
-  setAuthStatus(t("authConnected", { email: session.user.email || "" }));
+  setAuthStatus("");
 }
 
 async function loadCloudCalendar() {
@@ -682,6 +694,12 @@ function resetCloudProfileForm() {
   state.notes = {};
   state.moods = {};
   syncLoginFields();
+}
+
+function clearAuthForm() {
+  els.authEmailInput.value = "";
+  els.authPasswordInput.value = "";
+  els.profileAccountEmail.textContent = "";
 }
 
 function updateLoginVisibility() {
@@ -1659,19 +1677,32 @@ async function saveWeekToCloud(index) {
 function preparePrint() {
   if (state.previousPrintRange === null) state.previousPrintRange = state.range;
   stopViewBoxAnimation();
+  document.body.classList.add("printing");
   state.range = "life";
   renderCalendar({ fit: false });
   const printBox = getPrintViewBox();
-  state.fitViewBox = printBox;
-  setViewBox(printBox, { constrain: false });
+  renderPrintSheet(getModel(), printBox);
 }
 
 function restoreAfterPrint() {
+  document.body.classList.remove("printing");
   if (state.previousPrintRange !== null) {
     state.range = state.previousPrintRange;
     state.previousPrintRange = null;
   }
   renderCalendar({ fit: true });
+}
+
+function renderPrintSheet(data, printBox) {
+  const endDate = data.endDate ? data.endDate.toISOString().slice(0, 10) : "";
+  const weeksLabel = t("weeks");
+  els.printSheetLabel.textContent = t("brand");
+  els.printSheetName.textContent = data.name;
+  els.printSheetMeta.textContent = `${formatNumber(data.weeksLived)} ${weeksLabel} / ${formatNumber(data.totalWeeks)} ${weeksLabel} · ${data.progress.toFixed(1)}% · ${els.birthdayInput.value} - ${endDate}`;
+  els.printMap.dataset.range = "life";
+  els.printMap.innerHTML = els.calendarMap.innerHTML;
+  els.printMap.setAttribute("viewBox", `${printBox.x} ${printBox.y} ${printBox.width} ${printBox.height}`);
+  els.printMap.setAttribute("preserveAspectRatio", "xMidYMid meet");
 }
 
 function printFullLife() {
