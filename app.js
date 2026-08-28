@@ -1466,6 +1466,7 @@ function getPrintViewBox() {
   const bounds = state.mapBounds;
   const printAspect = 194 / 270;
   const margin = 82;
+  const verticalLift = 42;
   let height = bounds.height + margin * 2;
   let width = height * printAspect;
 
@@ -1474,7 +1475,11 @@ function getPrintViewBox() {
     height = width / printAspect;
   }
 
-  return centerBox(width, height);
+  const box = centerBox(width, height);
+  return {
+    ...box,
+    y: box.y + verticalLift
+  };
 }
 
 function centerBox(width, height) {
