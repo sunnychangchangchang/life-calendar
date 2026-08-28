@@ -242,7 +242,6 @@ const els = {
   printSheet: $("#printSheet"),
   printSheetLabel: $("#printSheetLabel"),
   printSheetName: $("#printSheetName"),
-  printSheetBirthday: $("#printSheetBirthday"),
   printLivedLabel: $("#printLivedLabel"),
   printLivedValue: $("#printLivedValue"),
   printLivedUnit: $("#printLivedUnit"),
@@ -1714,7 +1713,6 @@ function renderPrintSheet(data, printBox) {
   const weeksLabel = t("weeks");
   els.printSheetLabel.textContent = t("brand");
   els.printSheetName.textContent = data.name;
-  els.printSheetBirthday.textContent = `${t("fieldBirthday")} ${els.birthdayInput.value}`;
   els.printLivedLabel.textContent = t("metricLived");
   els.printLivedValue.textContent = formatNumber(data.weeksLived);
   els.printLivedUnit.textContent = weeksLabel;
