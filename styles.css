@@ -972,13 +972,13 @@ textarea {
 
 .record-empty {
   margin: 0;
-  padding: 14px 16px;
+  padding: 12px 14px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: rgba(255, 255, 252, 0.58);
   color: var(--muted);
-  font-size: 18px;
-  line-height: 1.55;
+  font-size: 16px;
+  line-height: 1.5;
 }
 
 .record-list {
@@ -992,20 +992,20 @@ textarea {
 }
 
 .record-item {
-  display: grid;
-  grid-template-columns: 12px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 12px;
-  padding: 13px 16px;
+  position: relative;
+  display: block;
+  padding: 13px 44px 13px 28px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: rgba(255, 255, 252, 0.66);
 }
 
 .record-bullet {
-  width: 8px;
-  height: 8px;
-  margin-top: 0;
+  position: absolute;
+  top: 23px;
+  left: 14px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background: var(--ink);
 }
@@ -1013,20 +1013,28 @@ textarea {
 .record-item p {
   margin: 0;
   color: var(--ink);
-  font-size: 18px;
-  line-height: 1.52;
-  overflow-wrap: anywhere;
+  font-size: 16px;
+  line-height: 1.58;
+  overflow-wrap: break-word;
+  text-wrap: pretty;
 }
 
 .record-delete {
-  min-height: 42px;
+  position: absolute;
+  top: 9px;
+  right: 10px;
+  width: 28px;
+  min-width: 28px;
+  min-height: 28px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: 50%;
   background: rgba(251, 250, 246, 0.68);
   color: var(--muted);
-  padding: 0 14px;
-  font-size: 15px;
+  padding: 0;
+  font-family: var(--font-ui);
+  font-size: 20px;
   font-weight: 720;
+  line-height: 1;
 }
 
 .record-delete:hover {
@@ -1328,8 +1336,10 @@ textarea {
   html,
   body {
     width: 210mm;
-    height: 297mm;
+    height: 296mm;
     min-height: 0;
+    margin: 0;
+    padding: 0;
     overflow: hidden;
     background: #fff;
     print-color-adjust: exact;
@@ -1337,12 +1347,20 @@ textarea {
   }
 
   .app {
-    position: relative;
+    position: fixed;
+    inset: 0 auto auto 0;
     display: block;
     width: 210mm;
-    height: 297mm;
+    height: 296mm;
+    margin: 0;
     padding: 0;
     overflow: hidden;
+    break-before: avoid;
+    break-after: avoid;
+    break-inside: avoid;
+    page-break-before: avoid;
+    page-break-after: avoid;
+    page-break-inside: avoid;
   }
 
   .settings-panel,
@@ -1356,15 +1374,26 @@ textarea {
 
   .workspace,
   .main-pane {
+    position: absolute;
+    inset: 0;
     display: block;
     width: 210mm;
-    height: 297mm;
+    height: 296mm;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
     overflow: hidden;
+    break-before: avoid;
+    break-after: avoid;
+    break-inside: avoid;
+    page-break-before: avoid;
+    page-break-after: avoid;
+    page-break-inside: avoid;
   }
 
   .print-title {
     display: block;
-    position: fixed;
+    position: absolute;
     top: 5mm;
     left: 8mm;
     width: 194mm;
@@ -1385,20 +1414,26 @@ textarea {
 
   .calendar-stage {
     display: block;
-    position: fixed;
-    top: 19mm;
-    left: 8mm;
-    width: 194mm;
-    height: 270mm;
+    position: absolute;
+    top: 18mm;
+    left: 7mm;
+    width: 196mm;
+    height: 271mm;
     margin: 0;
     min-height: 0;
+    max-height: none;
     overflow: hidden;
     border: 0;
     border-radius: 0;
     box-shadow: none;
     background: #fff;
     cursor: default;
+    contain: layout paint;
+    break-before: avoid;
+    break-after: avoid;
     break-inside: avoid;
+    page-break-before: avoid;
+    page-break-after: avoid;
     page-break-inside: avoid;
   }
 

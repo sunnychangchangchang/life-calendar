@@ -59,7 +59,7 @@ const translations = {
     noteRequired: "先寫一點內容，再儲存。",
     noteColorSaved: "已更新。",
     noteSyncFailed: "已存在本機，但雲端同步失敗。",
-    moodLabel: "當週顏色",
+    moodLabel: "當週心情顏色",
     moodCalm: "平靜",
     moodBright: "明亮",
     moodLow: "低潮",
@@ -136,7 +136,7 @@ const translations = {
     noteRequired: "Write a record before saving.",
     noteColorSaved: "Updated.",
     noteSyncFailed: "Saved locally, but cloud sync failed.",
-    moodLabel: "Week color",
+    moodLabel: "Week mood color",
     moodCalm: "Calm",
     moodBright: "Bright",
     moodLow: "Low",
@@ -1158,7 +1158,9 @@ function renderRecordList(index) {
     button.type = "button";
     button.className = "record-delete";
     button.dataset.deleteRecord = record.id;
-    button.textContent = t("deleteRecord");
+    button.setAttribute("aria-label", t("deleteRecord"));
+    button.title = t("deleteRecord");
+    button.textContent = "×";
 
     item.append(bullet, text, button);
     els.recordList.append(item);
@@ -1675,7 +1677,11 @@ function restoreAfterPrint() {
 
 function printFullLife() {
   preparePrint();
-  window.setTimeout(() => window.print(), 120);
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      window.setTimeout(() => window.print(), 80);
+    });
+  });
 }
 
 function saveState(options = {}) {
