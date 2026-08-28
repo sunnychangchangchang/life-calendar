@@ -2,6 +2,7 @@ const translations = {
   zh: {
     brand: "人生週曆",
     print: "列印",
+    languageLabel: "語言",
     account: "登出",
     intro: "每一格是一週。記錄大事、標記狀態，列印時濃縮成一頁 A4。",
     loginCloudKicker: "登入",
@@ -83,6 +84,7 @@ const translations = {
   en: {
     brand: "Life Calendar",
     print: "Print",
+    languageLabel: "Language",
     account: "Sign out",
     intro: "One square is one week. Record events, mark states, and print the full map on one A4 sheet.",
     loginCloudKicker: "Sign in",
@@ -198,6 +200,10 @@ const state = {
   mapBounds: { x: 0, y: 0, width: 1, height: 1 },
   dragging: false,
   dragStart: null,
+  longPressTimer: null,
+  longPressTarget: null,
+  longPressTriggered: false,
+  touchPreviewCell: null,
   ignoreNextClick: false,
   raf: null,
   previousPrintRange: null,
@@ -272,6 +278,7 @@ const els = {
   recordList: $("#recordList"),
   noteStatus: $("#noteStatus"),
   languageToggle: $("#languageToggle"),
+  languageValue: $("#languageValue"),
   accountButton: $("#accountButton"),
   printButton: $("#printButton"),
   saveNote: $("#saveNote"),
@@ -451,11 +458,6 @@ function bindEvents() {
     });
   });
 
-  els.calendarStage.addEventListener("wheel", handleWheel, { passive: false });
-  els.calendarStage.addEventListener("dblclick", (event) => {
-    if (event.target.closest(".stage-footer")) return;
-    fitMap(false);
-  });
   els.calendarStage.addEventListener("pointerdown", handlePointerDown);
   els.calendarStage.addEventListener("pointermove", handlePointerMove);
   els.calendarStage.addEventListener("pointerup", endDrag);
@@ -463,6 +465,7 @@ function bindEvents() {
 
   els.calendarMap.addEventListener("mousemove", handleMapHover);
   els.calendarMap.addEventListener("mouseleave", () => {
+    if (state.touchPreviewCell) return;
     els.hoverCard.classList.remove("visible");
     state.hoveredWeek = null;
     renderSelectedDetail(state.selectedWeek);
@@ -472,6 +475,7 @@ function bindEvents() {
       state.ignoreNextClick = false;
       return;
     }
+    hideTouchPreview();
     const cell = event.target.closest(".week-cell");
     if (!cell) return;
     selectWeek(Number(cell.dataset.week));
@@ -489,6 +493,7 @@ function bindEvents() {
 
 function openMobilePanel(panel, options = {}) {
   if (!mobileMedia.matches) return;
+  hideTouchPreview();
   const isSettings = panel === "settings";
   state.mobilePanel = panel;
   state.mobileTrigger = isSettings ? els.mobileSettingsOpen : document.activeElement;
@@ -527,6 +532,7 @@ function closeMobilePanels(options = {}) {
 }
 
 function syncMobileMode() {
+  hideTouchPreview();
   closeMobilePanels({ restoreFocus: false });
   window.requestAnimationFrame(() => fitMap(true));
 }
@@ -1018,7 +1024,7 @@ function updateText() {
   $$("[data-i18n]").forEach((node) => {
     node.textContent = t(node.dataset.i18n);
   });
-  els.languageToggle.textContent = state.lang === "zh" ? "EN" : "中文";
+  els.languageValue.textContent = state.lang === "zh" ? "EN" : "中文";
   els.noteInput.placeholder = t("notePlaceholder");
   els.mobileBackdrop.setAttribute("aria-label", t("mobileClosePanel"));
   els.mobileSettingsOpen.setAttribute("aria-label", t("mobileSettings"));
@@ -1041,9 +1047,11 @@ function updateNavState() {
 
 function setRange(range) {
   stopViewBoxAnimation();
+  hideTouchPreview();
   state.range = range;
   state.viewBox = null;
   state.fitViewBox = null;
+  els.calendarStage.scrollTop = 0;
   renderCalendar({ fit: true });
 }
 
@@ -1131,11 +1139,7 @@ function renderMap(data) {
   els.calendarMap.dataset.range = state.range;
   els.calendarMap.innerHTML = nodes.join("");
 
-  if (!state.viewBox) {
-    setViewBox(getFitViewBox());
-  } else {
-    setViewBox(state.viewBox);
-  }
+  setViewBox(getFitViewBox(), { constrain: false });
 }
 
 function getMapLayout() {
@@ -1165,7 +1169,7 @@ function getMapLayout() {
       decadeGap: 16,
       radius: 3,
       labels: true,
-      weeksPerRow: 13
+      weeksPerRow: mobileMedia.matches ? 7 : 13
     };
   }
 
@@ -1179,7 +1183,7 @@ function getMapLayout() {
     decadeGap: 18,
     radius: 2.5,
     labels: true,
-    weeksPerRow: 26
+    weeksPerRow: mobileMedia.matches ? 13 : 26
   };
 }
 
@@ -1308,6 +1312,7 @@ function flashSaveButton() {
 }
 
 function selectWeek(index) {
+  hideTouchPreview();
   const previous = state.selectedWeek;
   state.selectedWeek = index;
   if (previous !== null) updateWeekClass(previous);
@@ -1317,6 +1322,7 @@ function selectWeek(index) {
 }
 
 function handleMapHover(event) {
+  if (mobileMedia.matches) return;
   if (state.dragStart || state.dragging) {
     els.hoverCard.classList.remove("visible");
     return;
@@ -1376,7 +1382,7 @@ function positionHoverCard(event) {
     ? cursorY - cardHeight - 18
     : cursorY + 18;
   const left = Math.min(maxLeft, Math.max(12, leftCandidate));
-  const top = Math.min(maxTop, Math.max(12, topCandidate));
+  const top = Math.min(maxTop, Math.max(12, topCandidate)) + els.calendarStage.scrollTop;
   els.hoverCard.style.left = `${left}px`;
   els.hoverCard.style.top = `${top}px`;
 }
@@ -1423,116 +1429,127 @@ function queueWheelPan(deltaX, deltaY) {
 }
 
 function handlePointerDown(event) {
-  if (event.button !== undefined && event.button !== 0) return;
-  if (event.target.closest(".stage-footer")) return;
+  if (!mobileMedia.matches || event.pointerType === "mouse") return;
   const weekCell = event.target.closest(".week-cell");
-  stopViewBoxAnimation();
-  state.dragStart = {
-    pointerId: event.pointerId,
-    clientX: event.clientX,
-    clientY: event.clientY,
-    weekIndex: weekCell ? Number(weekCell.dataset.week) : null,
-    viewBox: { ...(state.viewBox || getFitViewBox()) }
-  };
-  els.calendarStage.setPointerCapture(event.pointerId);
-}
-
-function handlePointerMove(event) {
-  if (!state.dragStart) return;
-  event.preventDefault();
-  const metrics = getStageMetrics();
-  const box = state.dragStart.viewBox;
-  const dx = event.clientX - state.dragStart.clientX;
-  const dy = event.clientY - state.dragStart.clientY;
-
-  if (!state.dragging) {
-    if (Math.hypot(dx, dy) < 4) return;
-    state.dragging = true;
-    els.calendarStage.classList.add("dragging");
-    els.hoverCard.classList.remove("visible");
-  }
-
-  setViewBox({
-    x: box.x - dx * box.width / metrics.width,
-    y: box.y - dy * box.height / metrics.height,
-    width: box.width,
-    height: box.height
-  });
-}
-
-function endDrag(event) {
-  const didDrag = state.dragging;
-  const weekIndex = state.dragStart?.weekIndex;
-  if (state.dragStart && event?.pointerId === state.dragStart.pointerId) {
-    try {
-      els.calendarStage.releasePointerCapture(event.pointerId);
-    } catch {
-      // Pointer capture may already be released by the browser.
-    }
-  }
-  state.dragging = false;
-  state.dragStart = null;
-  els.calendarStage.classList.remove("dragging");
-
-  if (!didDrag && weekIndex !== null && weekIndex !== undefined) {
-    selectWeek(weekIndex);
-    state.ignoreNextClick = true;
-    window.setTimeout(() => {
-      state.ignoreNextClick = false;
-    }, 0);
-  } else if (didDrag) {
-    state.ignoreNextClick = true;
-    window.setTimeout(() => {
-      state.ignoreNextClick = false;
-    }, 0);
-  }
-}
-
-function fitMap(immediate = false) {
-  if (immediate) {
-    stopViewBoxAnimation();
-    const box = getFitViewBox();
-    state.fitViewBox = box;
-    setViewBox(box);
+  if (!weekCell) {
+    hideTouchPreview();
     return;
   }
 
+  window.clearTimeout(state.longPressTimer);
+  state.longPressTriggered = false;
+  state.longPressTarget = {
+    pointerId: event.pointerId,
+    clientX: event.clientX,
+    clientY: event.clientY,
+    weekIndex: Number(weekCell.dataset.week),
+    cell: weekCell
+  };
+  state.longPressTimer = window.setTimeout(() => {
+    showTouchPreview(state.longPressTarget);
+  }, 460);
+}
+
+function handlePointerMove(event) {
+  if (!state.longPressTarget || event.pointerId !== state.longPressTarget.pointerId) return;
+  const distance = Math.hypot(
+    event.clientX - state.longPressTarget.clientX,
+    event.clientY - state.longPressTarget.clientY
+  );
+  if (distance <= 10) return;
+  cancelLongPress();
+}
+
+function endDrag(event) {
+  if (!state.longPressTarget || event?.pointerId !== state.longPressTarget.pointerId) return;
+  window.clearTimeout(state.longPressTimer);
+  state.longPressTimer = null;
+  state.longPressTarget = null;
+
+  if (!state.longPressTriggered) return;
+  state.longPressTriggered = false;
+  state.touchPreviewCell?.classList.remove("long-pressed");
+  window.setTimeout(() => {
+    state.ignoreNextClick = false;
+  }, 700);
+}
+
+function cancelLongPress() {
+  window.clearTimeout(state.longPressTimer);
+  state.longPressTimer = null;
+  state.longPressTarget = null;
+  state.longPressTriggered = false;
+}
+
+function showTouchPreview(target) {
+  if (!target?.cell?.isConnected) return;
+  state.touchPreviewCell?.classList.remove("long-pressed");
+  els.hoverCard.classList.remove("touch-visible", "visible");
+  state.longPressTriggered = true;
+  state.ignoreNextClick = true;
+  state.touchPreviewCell = target.cell;
+  target.cell.classList.add("long-pressed");
+  renderHoverCard(target.weekIndex);
+  els.hoverCard.classList.add("touch-visible");
+  positionTouchPreview(target.cell);
+}
+
+function positionTouchPreview(cell) {
+  const stageRect = els.calendarStage.getBoundingClientRect();
+  const cellRect = cell.getBoundingClientRect();
+  const cardRect = els.hoverCard.getBoundingClientRect();
+  const cardWidth = cardRect.width || Math.min(300, stageRect.width - 24);
+  const cardHeight = cardRect.height || 150;
+  const centerX = cellRect.left - stageRect.left + cellRect.width / 2;
+  const centerY = cellRect.top - stageRect.top + cellRect.height / 2;
+  const maxLeft = Math.max(12, stageRect.width - cardWidth - 12);
+  const left = clamp(centerX - cardWidth / 2, 12, maxLeft);
+  const above = centerY - cardHeight - 22;
+  const viewportTop = above >= 12 ? above : centerY + 22;
+  const top = viewportTop + els.calendarStage.scrollTop;
+  els.hoverCard.style.left = `${left}px`;
+  els.hoverCard.style.top = `${top}px`;
+}
+
+function hideTouchPreview() {
+  window.clearTimeout(state.longPressTimer);
+  state.longPressTimer = null;
+  state.longPressTarget = null;
+  state.longPressTriggered = false;
+  state.touchPreviewCell?.classList.remove("long-pressed");
+  state.touchPreviewCell = null;
+  els.hoverCard.classList.remove("touch-visible", "visible");
+}
+
+function fitMap(immediate = false) {
+  stopViewBoxAnimation();
   const box = getFitViewBox();
   state.fitViewBox = box;
-  animateToViewBox(box);
+  setViewBox(box, { constrain: false });
+  sizeScrollableMap(box);
 }
 
 function getFitViewBox() {
-  const metrics = getStageMetrics();
   const bounds = state.mapBounds;
-  const margin = state.range === "life" ? 34 : 24;
-  const maxScale = state.range === "life" ? 0.78 : state.range === "year" ? 1.65 : 1.28;
-  let width = bounds.width + margin * 2;
-  let height = width / metrics.aspect;
-  const neededHeight = bounds.height + margin * 2;
+  const margin = state.range === "life" ? 18 : 24;
+  return {
+    x: bounds.x - margin,
+    y: bounds.y - margin,
+    width: bounds.width + margin * 2,
+    height: bounds.height + margin * 2
+  };
+}
 
-  if (state.range === "life") {
-    const readableWidth = Math.min(width, metrics.width / maxScale);
-    return getLifeFocusBox(readableWidth, readableWidth / metrics.aspect);
-  }
-
-  if (height < neededHeight) {
-    height = neededHeight;
-    width = height * metrics.aspect;
-  }
-
-  const minWidthForScale = metrics.width / maxScale;
-  const minHeightForScale = metrics.height / maxScale;
-  if (width < minWidthForScale || height < minHeightForScale) {
-    width = Math.max(width, minWidthForScale);
-    height = width / metrics.aspect;
-    if (height < minHeightForScale) {
-      height = minHeightForScale;
-      width = height * metrics.aspect;
-    }
-  }
-
-  return centerBox(width, height);
+function sizeScrollableMap(box) {
+  const stageHeight = Math.max(320, els.calendarStage.clientHeight);
+  const stageWidth = Math.max(320, els.calendarStage.clientWidth);
+  const naturalHeight = Math.ceil(stageWidth * box.height / box.width);
+  const usesVerticalReading = state.range === "life"
+    || (mobileMedia.matches && state.range === "decade");
+  const mapHeight = usesVerticalReading
+    ? Math.max(stageHeight, naturalHeight)
+    : stageHeight;
+  els.calendarMap.style.height = `${mapHeight}px`;
 }
 
 function getLifeFocusBox(width, height) {

@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>Life Calendar</title>
-  <link rel="stylesheet" href="./styles.css?v=20260828-08">
+  <link rel="stylesheet" href="./styles.css?v=20260828-09">
   <script src="./supabase-config.js?v=20260828-03"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./app.js?v=20260828-08" defer></script>
+  <script src="./app.js?v=20260828-09" defer></script>
 </head>
 <body class="auth-loading needs-login">
   <section class="login-screen" id="loginScreen" aria-label="Life Calendar profile setup">
@@ -167,9 +167,18 @@
         </section>
 
         <div class="utility-actions">
-          <button type="button" class="ghost-button" id="languageToggle">EN</button>
-          <button type="button" class="ghost-button" id="printButton" data-i18n="print">列印</button>
-          <button type="button" class="ghost-button full" id="accountButton" data-i18n="authSignOut">登出</button>
+          <button type="button" class="ghost-button" id="languageToggle">
+            <span class="utility-label" data-i18n="languageLabel">語言</span>
+            <span class="utility-value" id="languageValue">EN</span>
+          </button>
+          <button type="button" class="ghost-button" id="printButton">
+            <span class="utility-label" data-i18n="print">列印</span>
+            <span class="utility-value">A4</span>
+          </button>
+          <button type="button" class="ghost-button full" id="accountButton">
+            <span class="utility-label" data-i18n="authSignOut">登出</span>
+            <span class="utility-arrow" aria-hidden="true">&#8594;</span>
+          </button>
         </div>
       </aside>
 
