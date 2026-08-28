@@ -300,7 +300,7 @@ body:not(.needs-login) .login-screen {
   gap: 2px;
   padding: var(--space-1);
   border: 1px solid var(--border-strong);
-  border-radius: var(--radius-sm);
+  border-radius: 7px;
   background: var(--surface);
 }
 
@@ -1417,7 +1417,7 @@ textarea {
     gap: 12mm;
     min-height: 0;
     margin: 0;
-    padding: 0 0 4.5mm;
+    padding: 0 0 4mm;
     border-bottom: 0.25mm solid #1f211e;
   }
 
@@ -1430,14 +1430,40 @@ textarea {
 
   .print-identity {
     display: grid;
-    gap: 1mm;
+    gap: 0.8mm;
     min-width: 0;
     padding-top: 0.6mm;
   }
 
+  .print-brand-line {
+    display: flex;
+    align-items: center;
+    gap: 1.8mm;
+    min-width: 0;
+  }
+
+  .print-brand-mark {
+    width: 5.6mm;
+    height: 5.6mm;
+    flex: 0 0 5.6mm;
+    gap: 0.38mm;
+    padding: 0.7mm;
+    border: 0.25mm solid #8f8b81;
+    border-radius: 1.4mm;
+    background: #fbfaf6;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .print-brand-mark i {
+    border-radius: 0.3mm;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
   #printSheetLabel {
     color: #696b61;
-    font-size: 7.8pt;
+    font-size: 8.2pt;
     font-weight: 720;
     line-height: 1.2;
   }
@@ -1445,10 +1471,10 @@ textarea {
   #printSheetName {
     max-width: 98mm;
     font-family: var(--font-serif);
-    font-size: 20.5pt;
+    font-size: 22.5pt;
     font-weight: 820;
-    line-height: 1.18;
-    padding: 0.2mm 0 0.8mm;
+    line-height: 1.12;
+    padding: 0.1mm 0 0.7mm;
     white-space: nowrap;
     overflow: visible;
     text-overflow: clip;
@@ -1456,7 +1482,7 @@ textarea {
 
   #printSheetBirthday {
     color: #696b61;
-    font-size: 8pt;
+    font-size: 8.4pt;
     font-weight: 620;
     line-height: 1.25;
   }
@@ -1479,7 +1505,7 @@ textarea {
   .print-stats dt {
     margin: 0 0 1.2mm;
     color: #696b61;
-    font-size: 7.4pt;
+    font-size: 7.8pt;
     font-weight: 720;
     line-height: 1;
   }
@@ -1496,7 +1522,7 @@ textarea {
   }
 
   .print-stats strong {
-    font-size: 17pt;
+    font-size: 19pt;
     font-weight: 820;
     font-variant-numeric: tabular-nums;
   }
@@ -1504,7 +1530,7 @@ textarea {
   .print-stats span {
     color: #696b61;
     font-family: var(--font-sans);
-    font-size: 7.5pt;
+    font-size: 7.8pt;
     font-weight: 700;
   }
 
