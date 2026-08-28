@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Life Calendar</title>
+  <link rel="stylesheet" href="./styles.css?v=20260827-18">
+  <script src="./supabase-config.js?v=20260827-18"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./app.js?v=20260827-18" defer></script>
+</head>
+<body class="needs-login">
+  <section class="login-screen" id="loginScreen" aria-label="Life Calendar profile setup">
+    <div class="login-card">
+      <a class="brand" href="#calendar" aria-label="Life Calendar">
+        <span class="brand-mark" aria-hidden="true">
+          <i></i><i></i><i></i><i></i>
+          <i></i><i></i><i></i><i></i>
+          <i></i><i></i><i></i><i></i>
+          <i></i><i></i><i></i><i></i>
+        </span>
+        <span data-i18n="brand">人生週曆</span>
+      </a>
+
+      <div class="login-copy">
+        <p class="kicker login-kicker" id="loginKicker" data-i18n="loginCloudKicker">登入</p>
+        <h1 id="loginTitle" data-i18n="loginCloudTitle">人生週曆</h1>
+        <p class="intro" id="loginIntro" data-i18n="loginCloudIntro">登入後建立自己的週曆，之後每一週都會同步保存。</p>
+      </div>
+
+      <section class="auth-panel" id="authPanel" hidden>
+        <form class="auth-form" id="authForm">
+          <label>
+            <span data-i18n="authEmail">Email</span>
+            <input id="authEmailInput" type="email" autocomplete="email">
+          </label>
+          <label>
+            <span data-i18n="authPassword">密碼</span>
+            <input id="authPasswordInput" type="password" autocomplete="current-password" minlength="8">
+          </label>
+          <div class="auth-actions">
+            <button type="button" class="google-button full" id="authGoogle" data-i18n="authGoogle">使用 Google 登入</button>
+            <button type="button" class="solid-button" id="authSignIn" data-i18n="authSignIn">登入</button>
+            <button type="button" class="ghost-button" id="authSignUp" data-i18n="authSignUp">建立帳號</button>
+          </div>
+          <p class="auth-status" id="authStatus" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <div class="profile-account" id="profileAccount" hidden>
+        <span id="profileAccountEmail"></span>
+        <button type="button" class="ghost-button" id="profileSignOut" data-i18n="authSignOut">登出</button>
+      </div>
+
+      <form class="login-form" id="loginForm" hidden>
+        <label>
+          <span data-i18n="fieldName">名字</span>
+          <input id="loginNameInput" autocomplete="name" required value="Sunny">
+        </label>
+        <label>
+          <span data-i18n="fieldBirthday">生日</span>
+          <input id="loginBirthdayInput" type="date" required value="1996-05-20">
+        </label>
+        <label>
+          <span data-i18n="fieldLifespan">預期壽命</span>
+          <input id="loginLifespanInput" type="number" min="10" max="100" step="1" required value="100">
+        </label>
+        <button type="submit" class="solid-button full" id="loginSubmit" data-i18n="loginSubmitCreate">進入週曆</button>
+        <button type="button" class="ghost-button full" id="loginDemo" data-i18n="loginDemo">使用示範資料</button>
+      </form>
+
+      <p class="login-hint" data-i18n="loginLocal">未設定 Supabase 時，資料只存在此瀏覽器；設定後會用雲端帳號同步。</p>
+    </div>
+
+    <div class="login-preview" aria-hidden="true">
+      <div class="preview-sheet">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+  </section>
+
+  <div class="app">
+    <main class="workspace">
+      <aside class="settings-panel" aria-label="Calendar settings">
+        <a class="brand" href="#calendar" aria-label="Life Calendar">
+          <span class="brand-mark" aria-hidden="true">
+            <i></i><i></i><i></i><i></i>
+            <i></i><i></i><i></i><i></i>
+            <i></i><i></i><i></i><i></i>
+            <i></i><i></i><i></i><i></i>
+          </span>
+          <span data-i18n="brand">人生週曆</span>
+        </a>
+
+        <p class="intro" data-i18n="intro">把人生拆成每週一格，用來記錄重大事件、標記當週狀態，也可以把完整人生濃縮成一頁 A4。</p>
+
+        <section class="field-grid">
+          <label>
+            <span data-i18n="fieldName">名字</span>
+            <input id="nameInput" autocomplete="name" value="Sunny">
+          </label>
+          <label>
+            <span data-i18n="fieldBirthday">生日</span>
+            <input id="birthdayInput" type="date" value="1996-05-20">
+          </label>
+          <label>
+            <span data-i18n="fieldLifespan">預期壽命</span>
+            <input id="lifespanInput" type="number" min="10" max="100" step="1" value="100">
+          </label>
+        </section>
+        <input id="decadeInput" type="hidden" value="20">
+
+        <section class="view-panel" aria-label="Calendar range">
+          <p class="panel-label" data-i18n="viewLabel">視圖</p>
+          <div class="range-tabs" role="group" aria-label="Calendar range">
+            <button type="button" id="rangeDecade" aria-pressed="true" data-i18n="rangeDecade">十年</button>
+            <button type="button" id="rangeYear" aria-pressed="false" data-i18n="rangeYear">今年</button>
+            <button type="button" id="rangeLife" aria-pressed="false" data-i18n="rangeLife">全人生</button>
+          </div>
+        </section>
+
+        <div class="utility-actions">
+          <button type="button" class="ghost-button" id="languageToggle">EN</button>
+          <button type="button" class="ghost-button" id="printButton" data-i18n="print">列印</button>
+          <button type="button" class="ghost-button full" id="accountButton" data-i18n="authSignOut">登出</button>
+        </div>
+      </aside>
+
+      <section class="main-pane" id="calendar" aria-label="Life calendar">
+        <section class="summary-row">
+          <div class="headline">
+            <h1><span id="headlineName">Sunny</span></h1>
+          </div>
+
+          <section class="metrics" aria-label="Life summary">
+            <article>
+              <span data-i18n="metricLived">已活</span>
+              <strong id="weeksLived">0 週</strong>
+            </article>
+            <article>
+              <span data-i18n="metricLeft">剩餘</span>
+              <strong id="weeksLeft">0 週</strong>
+            </article>
+            <article>
+              <span data-i18n="metricProgress">進度</span>
+              <strong id="lifeProgress">0%</strong>
+            </article>
+          </section>
+        </section>
+
+        <p class="print-title" id="printTitle"></p>
+
+        <section class="calendar-stage" id="calendarStage" tabindex="0" aria-label="Zoomable weekly life map">
+          <svg class="calendar-map" id="calendarMap" role="img" aria-label="Weekly life calendar"></svg>
+          <div class="hover-card" id="hoverCard" role="status" aria-live="polite"></div>
+
+          <div class="stage-footer" aria-hidden="false">
+            <div class="zoom-bar" aria-label="Zoom controls">
+              <button type="button" class="ghost-button" id="zoomOut" aria-label="Zoom out">-</button>
+              <span id="zoomReadout">100%</span>
+              <button type="button" class="ghost-button" id="zoomIn" aria-label="Zoom in">+</button>
+              <button type="button" class="ghost-button" id="resetZoom" data-i18n="resetZoom">重置</button>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <aside class="inspector" id="journal" aria-label="Week journal">
+        <section class="panel-section selected-panel">
+          <p class="panel-label" data-i18n="selectedLabel">週</p>
+          <h2 id="selectedTitle">還沒選週</h2>
+          <p class="panel-copy" id="selectedMeta">滑過或點選任一格。</p>
+        </section>
+
+        <section class="panel-section event-section" hidden>
+          <p class="panel-label" data-i18n="eventLabel">週內容</p>
+          <div class="event-card" id="eventCard">
+            <strong>尚未記錄事件</strong>
+            <p>這週仍是空白。</p>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <div class="records-block">
+            <p class="panel-label" data-i18n="currentRecords">紀錄</p>
+            <p class="record-empty" id="recordEmpty" data-i18n="noRecordsYet">這一週還沒有紀錄。</p>
+            <ul class="record-list" id="recordList"></ul>
+          </div>
+          <label class="note-label" for="noteInput" data-i18n="noteLabel">新增紀錄</label>
+          <textarea id="noteInput" placeholder="寫下這週的一件事。"></textarea>
+          <button type="button" class="solid-button full" id="saveNote" data-i18n="saveNote">儲存紀錄</button>
+          <p class="note-status" id="noteStatus" role="status" aria-live="polite"></p>
+        </section>
+
+        <section class="panel-section">
+          <p class="panel-label" data-i18n="moodLabel">當週顏色</p>
+          <div class="mood-grid">
+            <button type="button" data-mood="calm"><i style="background: var(--calm)"></i><span data-i18n="moodCalm">平靜</span></button>
+            <button type="button" data-mood="bright"><i style="background: var(--bright)"></i><span data-i18n="moodBright">明亮</span></button>
+            <button type="button" data-mood="low"><i style="background: var(--low)"></i><span data-i18n="moodLow">低潮</span></button>
+            <button type="button" data-mood=""><i class="empty-swatch"></i><span data-i18n="moodClear">無顏色</span></button>
+          </div>
+        </section>
+      </aside>
+    </main>
+  </div>
+</body>
+</html>
